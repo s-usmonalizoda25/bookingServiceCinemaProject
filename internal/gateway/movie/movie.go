@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	moviepb "github.com/s-usmonalizoda25/movieServiceCinemaProject/genproto/movie"
+	moviepb "github.com/s-usmonalizoda25/protoCinemaService/gen/movie"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )

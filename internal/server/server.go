@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 
-	pb "github.com/s-usmonalizoda25/bookingServiceCinemaProject/genproto/booking"
+	pb "github.com/s-usmonalizoda25/protoCinemaService/gen/booking"
 	"github.com/s-usmonalizoda25/bookingServiceCinemaProject/internal/service"
 	"go.uber.org/zap"
 )

@@ -14,7 +14,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
-	pb "github.com/s-usmonalizoda25/bookingServiceCinemaProject/genproto/booking"
 	"github.com/s-usmonalizoda25/bookingServiceCinemaProject/internal/db"
 	"github.com/s-usmonalizoda25/bookingServiceCinemaProject/internal/gateway/movie"
 	"github.com/s-usmonalizoda25/bookingServiceCinemaProject/internal/gateway/user"
@@ -22,6 +21,7 @@ import (
 	"github.com/s-usmonalizoda25/bookingServiceCinemaProject/internal/repository"
 	"github.com/s-usmonalizoda25/bookingServiceCinemaProject/internal/server"
 	"github.com/s-usmonalizoda25/bookingServiceCinemaProject/internal/service"
+	pb "github.com/s-usmonalizoda25/protoCinemaService/gen/booking"
 )
 
 func main() {
