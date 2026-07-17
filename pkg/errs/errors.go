@@ -12,7 +12,3 @@ const (
 	MsgFailedGetUserBooking = "failed to get user booking"
 	MsgFailedCancel = "failed to cancel booking"
 )
-
-
-
-
