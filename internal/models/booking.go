@@ -19,5 +19,3 @@ type Booking struct {
 	CreatedAt time.Time
 	UpdatedAt  time.Time
 }
-
-
