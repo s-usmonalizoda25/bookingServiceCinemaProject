@@ -46,6 +46,9 @@ func main() {
 
 	rabbitURL := os.Getenv("RABBITMQ_URL")
 	rabbitClient, err := rabbitmq.New(rabbitURL, myLogger.Logger)
+	if err := rabbitClient.StartConsumer(); err != nil {
+		myLogger.Fatal("failed to start rabbitmq consumer", zap.Error(err))
+	}
 	if err != nil {
 		myLogger.Fatal("failed to connect to rabbitmq", zap.Error(err))
 	}

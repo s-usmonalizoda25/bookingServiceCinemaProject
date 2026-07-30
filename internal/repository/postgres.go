@@ -49,7 +49,7 @@ func (r *bookingRepo) GetByUserID(ctx context.Context, userID int64) ([]*models.
 }
 
 func (r *bookingRepo) Cancel(ctx context.Context, id int64) error {
-	const query = `UPDATE bookings SET status = 3, updated_at = NOW() WHERE id = $1`
-	_, err := r.db.Exec(ctx, query, id)
+	const query = `UPDATE bookings SET status = $2, updated_at = NOW() WHERE id = $1`
+	_, err := r.db.Exec(ctx, query, id, models.StatusCancelled)
 	return err
 }
