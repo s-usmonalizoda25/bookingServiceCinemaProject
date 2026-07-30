@@ -18,6 +18,7 @@ import (
 	"github.com/s-usmonalizoda25/bookingServiceCinemaProject/internal/gateway/movie"
 	"github.com/s-usmonalizoda25/bookingServiceCinemaProject/internal/gateway/user"
 	"github.com/s-usmonalizoda25/bookingServiceCinemaProject/internal/logger"
+	"github.com/s-usmonalizoda25/bookingServiceCinemaProject/internal/rabbitmq"
 	"github.com/s-usmonalizoda25/bookingServiceCinemaProject/internal/repository"
 	"github.com/s-usmonalizoda25/bookingServiceCinemaProject/internal/server"
 	"github.com/s-usmonalizoda25/bookingServiceCinemaProject/internal/service"
@@ -43,6 +44,13 @@ func main() {
 	}
 	defer dbPool.Close()
 
+	rabbitURL := os.Getenv("RABBITMQ_URL")
+	rabbitClient, err := rabbitmq.New(rabbitURL, myLogger.Logger)
+	if err != nil {
+		myLogger.Fatal("failed to connect to rabbitmq", zap.Error(err))
+	}
+	defer rabbitClient.Close()
+
 	userGw, err := user.New(os.Getenv("USER_SERVICE_ADDR"))
 	if err != nil {
 		myLogger.Fatal("failed to init user gateway", zap.Error(err))
@@ -54,7 +62,8 @@ func main() {
 	}
 
 	repo := repository.NewBookingRepository(dbPool)
-	svc := service.NewBookingService(repo, userGw, movieGw, myLogger.Logger)
+
+	svc := service.NewBookingService(repo, userGw, movieGw, rabbitClient, myLogger.Logger)
 	bookingServer := server.New(myLogger.Logger, svc)
 
 	grpcServer := grpc.NewServer()
