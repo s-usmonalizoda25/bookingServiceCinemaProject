@@ -7,7 +7,6 @@ import (
 	"github.com/s-usmonalizoda25/bookingServiceCinemaProject/internal/gateway/movie"
 	"github.com/s-usmonalizoda25/bookingServiceCinemaProject/internal/gateway/user"
 	"github.com/s-usmonalizoda25/bookingServiceCinemaProject/internal/models"
-	"github.com/s-usmonalizoda25/bookingServiceCinemaProject/internal/rabbitmq"
 	"github.com/s-usmonalizoda25/bookingServiceCinemaProject/internal/repository"
 	"github.com/s-usmonalizoda25/bookingServiceCinemaProject/pkg/errs"
 	"go.uber.org/zap"
@@ -17,7 +16,6 @@ type BookingService struct {
 	repo         repository.BookingRepository
 	userGateway  user.UserGateway
 	movieGateway movie.MovieGateway
-	rabbit       *rabbitmq.Client
 	log          *zap.Logger
 }
 
@@ -25,14 +23,12 @@ func NewBookingService(
 	repo repository.BookingRepository,
 	userGw user.UserGateway,
 	movieGw movie.MovieGateway,
-	rabbit *rabbitmq.Client,
 	log *zap.Logger,
 ) *BookingService {
 	return &BookingService{
 		repo:         repo,
 		userGateway:  userGw,
 		movieGateway: movieGw,
-		rabbit:       rabbit,
 		log:          log,
 	}
 }
@@ -62,11 +58,6 @@ func (s *BookingService) CreateBooking(ctx context.Context, userID, movieID int6
 		return nil, fmt.Errorf("%w: %v", errs.ErrInternalServer, err)
 	}
 	booking.ID = id
-
-	msg := fmt.Sprintf("New booking created: ID=%d, UserID=%d, MovieID=%d", booking.ID, userID, movieID)
-	if err := s.rabbit.Publish(msg); err != nil {
-		s.log.Error("failed to publish booking message to rabbitmq", zap.Error(err))
-	}
 
 	return booking, nil
 }
