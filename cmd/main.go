@@ -18,10 +18,10 @@ import (
 	"github.com/s-usmonalizoda25/bookingServiceCinemaProject/internal/gateway/movie"
 	"github.com/s-usmonalizoda25/bookingServiceCinemaProject/internal/gateway/user"
 	"github.com/s-usmonalizoda25/bookingServiceCinemaProject/internal/logger"
-	"github.com/s-usmonalizoda25/bookingServiceCinemaProject/pkg/rabbitmq"
 	"github.com/s-usmonalizoda25/bookingServiceCinemaProject/internal/repository"
 	"github.com/s-usmonalizoda25/bookingServiceCinemaProject/internal/server"
 	"github.com/s-usmonalizoda25/bookingServiceCinemaProject/internal/service"
+	"github.com/s-usmonalizoda25/bookingServiceCinemaProject/pkg/rabbitmq"
 	pb "github.com/s-usmonalizoda25/protoCinemaService/gen/booking"
 )
 
@@ -44,16 +44,6 @@ func main() {
 	}
 	defer dbPool.Close()
 
-	rabbitURL := os.Getenv("RABBITMQ_URL")
-
-	rabbitManager := rabbitmq.NewManager(rabbitURL)
-	rabbitmq.RegisterConsumers(rabbitManager, myLogger.Logger)
-
-	ctxConsumer, cancelConsumer := context.WithCancel(context.Background())
-	defer cancelConsumer()
-
-	go rabbitManager.Start(ctxConsumer)
-
 	userGw, err := user.New(os.Getenv("USER_SERVICE_ADDR"))
 	if err != nil {
 		myLogger.Fatal("failed to init user gateway", zap.Error(err))
@@ -65,8 +55,17 @@ func main() {
 	}
 
 	repo := repository.NewBookingRepository(dbPool)
-
 	svc := service.NewBookingService(repo, userGw, movieGw, myLogger.Logger)
+
+	rabbitURL := os.Getenv("RABBITMQ_URL")
+
+	rabbitManager := rabbitmq.NewManager(rabbitURL)
+	rabbitmq.RegisterConsumers(rabbitManager, svc, myLogger.Logger)
+
+	ctxConsumer, cancelConsumer := context.WithCancel(context.Background())
+	defer cancelConsumer()
+
+	go rabbitManager.Start(ctxConsumer)
 	bookingServer := server.New(myLogger.Logger, svc)
 
 	grpcServer := grpc.NewServer()

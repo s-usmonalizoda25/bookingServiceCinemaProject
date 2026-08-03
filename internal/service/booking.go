@@ -88,3 +88,12 @@ func (s *BookingService) CancelBooking(ctx context.Context, id int64) error {
 	}
 	return nil
 }
+
+func (s *BookingService) ConfirmBooking(ctx context.Context, id int64) error {
+	if err := s.repo.Confirm(ctx, id); err != nil {
+		s.log.Error("failed to confirm booking", zap.Int64("id", id), zap.Error(err))
+		return fmt.Errorf("%w: %v", errs.ErrInternalServer, err)
+	}
+	s.log.Info("booking confirmed", zap.Int64("id", id))
+	return nil
+}

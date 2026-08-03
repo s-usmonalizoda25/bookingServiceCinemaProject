@@ -7,6 +7,7 @@ import (
 	userpb "github.com/s-usmonalizoda25/protoCinemaService/gen/user"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
 )
 
 type UserGateway interface {
@@ -28,6 +29,13 @@ func New(address string) (UserGateway, error) {
 	}, nil
 }
 
+func forwardAuth(ctx context.Context) context.Context {
+	if md, ok := metadata.FromIncomingContext(ctx); ok {
+		return metadata.NewOutgoingContext(ctx, md)
+	}
+	return ctx
+}
+
 func (g *gateway) GetUser(ctx context.Context, id int64) (*userpb.GetUserResponse, error) {
-	return g.client.GetByID(ctx, &userpb.GetUserRequest{Id: id})
+	return g.client.GetByID(forwardAuth(ctx), &userpb.GetUserRequest{Id: id})
 }

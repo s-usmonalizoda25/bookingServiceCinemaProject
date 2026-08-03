@@ -53,3 +53,9 @@ func (r *bookingRepo) Cancel(ctx context.Context, id int64) error {
 	_, err := r.db.Exec(ctx, query, id, models.StatusCancelled)
 	return err
 }
+
+func (r *bookingRepo) Confirm(ctx context.Context, id int64) error {
+	const query = `UPDATE bookings SET status = $2, updated_at = NOW() WHERE id = $1`
+	_, err := r.db.Exec(ctx, query, id, models.StatusConfirmed)
+	return err
+}

@@ -11,5 +11,5 @@ type BookingRepository interface {
 	GetByID(ctx context.Context, id int64) (*models.Booking, error)
 	GetByUserID(ctx context.Context, userID int64) ([]*models.Booking, error)
 	Cancel(ctx context.Context, id int64) error
+	Confirm(ctx context.Context, id int64) error
 }
-
