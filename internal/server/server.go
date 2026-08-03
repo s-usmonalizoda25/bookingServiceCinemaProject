@@ -3,8 +3,8 @@ package server
 import (
 	"context"
 
-	pb "github.com/s-usmonalizoda25/protoCinemaService/gen/booking"
 	"github.com/s-usmonalizoda25/bookingServiceCinemaProject/internal/service"
+	pb "github.com/s-usmonalizoda25/protoCinemaService/gen/booking"
 	"go.uber.org/zap"
 )
 
@@ -51,4 +51,31 @@ func (s *Server) GetBooking(ctx context.Context, req *pb.GetBookingRequest) (*pb
 			Status:  pb.BookingStatus(b.Status),
 		},
 	}, nil
+}
+
+func (s *Server) GetUserBookings(ctx context.Context, req *pb.GetUserBookingsRequest) (*pb.GetUserBookingsResponse, error) {
+	bookings, err := s.svc.GetUserBookings(ctx, req.UserId)
+	if err != nil {
+		return nil, err
+	}
+
+	pbBookings := make([]*pb.Booking, 0, len(bookings))
+	for _, b := range bookings {
+		pbBookings = append(pbBookings, &pb.Booking{
+			Id:      b.ID,
+			UserId:  b.UserID,
+			MovieId: b.MovieID,
+			Status:  pb.BookingStatus(b.Status),
+		})
+	}
+
+	return &pb.GetUserBookingsResponse{Bookings: pbBookings}, nil
+}
+
+func (s *Server) CancelBooking(ctx context.Context, req *pb.CancelBookingRequest) (*pb.CancelBookingResponse, error) {
+	if err := s.svc.CancelBooking(ctx, req.Id); err != nil {
+		return nil, err
+	}
+
+	return &pb.CancelBookingResponse{Success: true}, nil
 }
